@@ -8,7 +8,6 @@ const app = express();
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
-const port = 4000;
 
 //connection with the mysql database
 const connection = mysql.createConnection({
@@ -16,10 +15,10 @@ const connection = mysql.createConnection({
   port: process.env.PORT,
   user: process.env.USER,
   password: process.env.PASSWORD,
-  database: process.env.DATABASE
+  database: process.env.DATABASE,
 });
 
-connection.connect(error => {
+connection.connect((error) => {
   error ? console.log(error) : console.log("connected");
 });
 module.exports = connection;
@@ -45,4 +44,4 @@ app.use("/api/expenses/add", expenseRoutes);
 app.use("/api/expenses/update/:id", expenseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.listen(port);
+app.listen(process.env.PORT || 4000);
