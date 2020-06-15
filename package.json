@@ -4,6 +4,7 @@
   "description": "loja",
   "main": "index.js",
   "scripts": {
+    "start": "npm start",
     "dev": "nodemon src/server/server.js"
   },
   "author": "Marcelo Oliveira",
