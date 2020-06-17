@@ -12,12 +12,11 @@ app.use(bodyParser.json());
 //connection with the mysql database
 const connection = mysql.createConnection({
   host: process.env.HOST,
-  port: process.env.PORT,
+  port: process.env.PORTMYSQL,
   user: process.env.USER,
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
   ssl: true,
-  connectTimeout: 100000000,
 });
 
 connection.connect((error) => {
