@@ -25,6 +25,17 @@ connection.connect((error) => {
 });
 module.exports = connection;
 
+connection.on("error", (error) => {
+  if (error.code === "PROTOCOL_CONNECTION_LOST") {
+    connection.connect((error) => {
+      error ? console.log(error) : console.log("connected");
+    });
+    module.exports = connection;
+  } else {
+    throw error;
+  }
+});
+
 //Routes from user CRUD
 const authRoutes = require("../routes/auth");
 const userRoutes = require("../routes/users");
