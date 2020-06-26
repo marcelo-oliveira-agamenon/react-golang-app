@@ -27,6 +27,8 @@ module.exports = connection;
 
 connection.on("error", (error) => {
   if (error.code === "PROTOCOL_CONNECTION_LOST") {
+    const connection = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
+
     connection.connect((error) => {
       error ? console.log(error) : console.log("connected");
     });
