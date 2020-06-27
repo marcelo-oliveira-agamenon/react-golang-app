@@ -6,7 +6,7 @@ const verifyToken = require("./verifyToken");
 
 //Get list of users
 router.get("/api/users", verifyToken, (req, res) => {
-  const sqlQuery = "Select userID, username, info, roles from User";
+  const sqlQuery = "Select userID, username, info, roles from user";
   connection.query(sqlQuery, (error, result) => {
     error
       ? res.status(400).send({ error: error })
@@ -18,7 +18,7 @@ router.get("/api/users", verifyToken, (req, res) => {
 router.get("/api/users/:id", verifyToken, (req, res) => {
   const userID = req.params.id;
   connection.query(
-    "Select userID, username, info, roles from User where userID = " +
+    "Select userID, username, info, roles from user where userID = " +
       `"${userID}"`,
     (error, result) => {
       if (result.length === 0) {
@@ -33,7 +33,7 @@ router.get("/api/users/:id", verifyToken, (req, res) => {
 //Add a user in database
 router.post("/api/users/add", verifyToken, async (req, res) => {
   const sqlQuery =
-    "Insert into User(userID, username, password, info, roles) values";
+    "Insert into user(userID, username, password, info, roles) values";
   const username = req.body.username;
   const password = req.body.password;
   const info = JSON.stringify(req.body.info);
@@ -46,7 +46,7 @@ router.post("/api/users/add", verifyToken, async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     connection.query(
-      "Select userID, username from User where username = " + `"${username}"`,
+      "Select userID, username from user where username = " + `"${username}"`,
       (error, result) => {
         result.length === 0
           ? connection.query(
@@ -76,7 +76,7 @@ router.post("/api/users/add", verifyToken, async (req, res) => {
 
 //Delete a user
 router.delete("/api/users/delete/:id", verifyToken, (req, res) => {
-  const sqlQuery = "Delete from User where userID=";
+  const sqlQuery = "Delete from user where userID=";
   const userID = req.body.userID;
 
   if (userID) {
@@ -114,7 +114,7 @@ router.put("/api/users/update/:id", verifyToken, (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
       const sqlQuery =
-        "Update User set username = " +
+        "Update user set username = " +
         `"${username}"` +
         ", password = " +
         `"${hashedPassword}"` +
