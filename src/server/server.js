@@ -9,7 +9,6 @@ dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
 
-//connection with the mysql database
 // const connection = mysql.createConnection({
 //   host: process.env.HOST,
 //   port: process.env.PORTMYSQL,

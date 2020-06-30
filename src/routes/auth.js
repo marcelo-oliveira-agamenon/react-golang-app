@@ -22,29 +22,30 @@ router.post("/api/login", (req, res) => {
           if (validPassword) {
             const token = jwt.sign(
               { id: result[0].userID },
-              process.env.TOKEN_SECRET
+              process.env.TOKEN_SECRET,
+              {
+                expiresIn: 432000,
+              }
             );
             const user = {
               userID: result[0].userID,
               username: result[0].username,
-              info: JSON.parse(result[0].info)
+              info: JSON.parse(result[0].info),
             };
             return res
               .status(200)
               .header("authToken", token)
-              .send({ token: token, loggedUser: user });
+              .json({ token: token, loggedUser: user });
           } else {
-            res.status(403).send({ error: "Invalid password" });
+            res.status(403).json({ error: "Invalid password" });
           }
         } else {
-          res.status(403).send({ error: "Invalid User" });
+          res.status(403).json({ error: "Invalid User" });
         }
       }
     );
   } else {
-    res
-      .status(400)
-      .send(JSON.stringify({ error: "There are missing fields in Userform" }));
+    res.status(400).json({ error: "There are missing fields in Userform" });
   }
 });
 
