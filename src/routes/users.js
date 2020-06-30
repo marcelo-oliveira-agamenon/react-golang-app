@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { v4: uuidv4 } = require("uuid");
 const connection = require("../server/server");
 const bcrypt = require("bcryptjs");
-const verifyToken = require("./verifyToken");
+const verifyToken = require("../utility/verifyToken");
 
 //Get list of users
 router.get("/api/users", verifyToken, (req, res) => {

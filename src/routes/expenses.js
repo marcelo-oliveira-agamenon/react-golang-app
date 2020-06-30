@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const connection = require("../server/server");
-const verifyToken = require("./verifyToken");
+const verifyToken = require("../utility/verifyToken");
 const { v4: uuidv4 } = require("uuid");
 
 //get a list of expenses per user

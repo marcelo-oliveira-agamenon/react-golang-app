@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const connection = require("../server/server");
-const verifyToken = require("./verifyToken");
+const verifyToken = require("../utility/verifyToken");
 
 //get data from the database from savings
 router.get("/api/dashboard", verifyToken, (req, res) => {
