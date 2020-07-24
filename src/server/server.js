@@ -8,16 +8,19 @@ const app = express();
 dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
+let connection;
 
-// const connection = mysql.createConnection({
-//   host: process.env.HOST,
-//   port: process.env.PORTMYSQL,
-//   user: process.env.USER,
-//   password: process.env.PASSWORD,
-//   database: process.env.DATABASE,
-// });
-
-const connection = mysql.createConnection(process.env.JAWSDB_URL);
+if (process.argv[2] === "dev") {
+  connection = mysql.createConnection({
+    host: process.env.HOST,
+    port: process.env.PORTMYSQL,
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+  });
+} else {
+  connection = mysql.createConnection(process.env.JAWSDB_URL);
+}
 
 connection.connect((error) => {
   error ? console.log(error) : console.log("connected");
