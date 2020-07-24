@@ -31,6 +31,9 @@ router.post("/api/login", (req, res) => {
               userID: result[0].userID,
               username: result[0].username,
               info: JSON.parse(result[0].info),
+              roles: result[0].roles,
+              createdAt: result[0].createdAt,
+              modifiedAt: result[0].modifiedAt,
             };
             return res
               .status(200)

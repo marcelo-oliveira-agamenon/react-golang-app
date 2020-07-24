@@ -26,9 +26,12 @@ router.get("/api/users", verifyToken, (req, res) => {
 //get a single user
 router.get("/api/users/:id", verifyToken, (req, res) => {
   const userID = req.params.id;
+  if (userID === undefined)
+    return res.status(400).send({ message: "Missing userID param" });
   connection.query(
-    "Select * where userID = " + `"${userID}"`,
+    "Select * from user where userID = " + `"${userID}"`,
     (error, result) => {
+      if (error) return res.status(400).send({ error: error });
       if (result.length === 0) {
         res.status(400).send({ message: "There is no user with this id" });
       } else {
@@ -48,21 +51,21 @@ router.post(
   "/api/users/add",
   [verifyToken, multer(multerConfig).single("avatarFile")],
   async (req, res) => {
-    const sqlQuery =
-      "Insert into user(userID, username, password, info, roles, createdAt, modifiedAt) values";
     const { username, password, roles } = req.body;
     const { location, key: imageName, originalname } = req.file;
-    const objInfo = JSON.parse(req.body.info);
-    objInfo.avatar = location;
-    objInfo.imageName = imageName;
-    objInfo.originalName = originalname;
-    const info = JSON.stringify(objInfo);
-    const userID = uuidv4();
-    const createdAt = new Date().toLocaleString();
-    const modifiedAt = null;
+    //Validate if all the data is correct and if there's already a user created with that username
+    if (username && password && roles) {
+      const sqlQuery =
+        "Insert into user(userID, username, password, info, roles, createdAt, modifiedAt) values";
+      const objInfo = JSON.parse(req.body.info);
+      objInfo.avatar = location;
+      objInfo.imageName = imageName;
+      objInfo.originalName = originalname;
+      const info = JSON.stringify(objInfo);
+      const userID = uuidv4();
+      const createdAt = new Date().toLocaleString();
+      const modifiedAt = null;
 
-    //Validate if there is username and password and if there's already a user created with that username
-    if (username && password) {
       //Hash password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -93,7 +96,7 @@ router.post(
 //Delete a user
 router.delete("/api/users/delete/:id", verifyToken, (req, res) => {
   const sqlQuery = "Delete from user where userID=";
-  const userID = req.body.userID;
+  const userID = req.params.id;
 
   if (userID) {
     connection.query(sqlQuery + `"${userID}"`, (error, result) => {
@@ -109,14 +112,19 @@ router.delete("/api/users/delete/:id", verifyToken, (req, res) => {
 });
 
 //Update fields of a User
-router.put("/api/users/update/:id", verifyToken, (req, res) => {
+router.put("/api/users/update/common/:id", verifyToken, (req, res) => {
   const userID = req.params.id;
-  const username = req.body.username;
-  const password = req.body.password;
-  const info = JSON.stringify(req.body.info);
-  const roles = req.body.roles;
+  const { username, password, roles } = req.body;
+  if (
+    username === undefined &&
+    password === undefined &&
+    roles === undefined &&
+    !userID
+  )
+    return res.status(400).send({ message: "Missing fields in request" });
+
   const verifyUserExist =
-    "Select username from User where userID = " + `"${userID}"`;
+    "Select username from user where userID = " + `"${userID}"`;
   connection.query(verifyUserExist, async (error, result) => {
     if (result.length === 0) {
       return res
@@ -130,8 +138,6 @@ router.put("/api/users/update/:id", verifyToken, (req, res) => {
         `"${username}"` +
         ", password = " +
         `"${hashedPassword}"` +
-        ", info = " +
-        `'${info}'` +
         ", roles = " +
         `"${roles}"` +
         " where userID = " +
@@ -146,5 +152,50 @@ router.put("/api/users/update/:id", verifyToken, (req, res) => {
     }
   });
 });
+
+router.put(
+  "/api/users/update/info/:id",
+  [verifyToken, multer(multerConfig).single("avatarFile")],
+  (req, res) => {
+    const userID = req.params.id;
+    const { info } = req.body;
+    const { location, key: imageName, originalname } = req.file;
+
+    if (info === undefined && !location)
+      return res.status(400).send({ message: "Missing fields in request" });
+
+    const objInfo = JSON.parse(info);
+    objInfo.avatar = location;
+    objInfo.imageName = imageName;
+    objInfo.originalName = originalname;
+    const infoModified = JSON.stringify(objInfo);
+    const modifiedAt = new Date().toLocaleString();
+
+    const verifyUserExist =
+      "Select * from user where userID = " + `"${userID}"`;
+    connection.query(verifyUserExist, async (error, result) => {
+      if (result.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "There is no user with this ID in the database" });
+      } else {
+        const sqlQuery =
+          "Update user set info = " +
+          `'${infoModified}'` +
+          `, modifiedAt = ` +
+          `"${modifiedAt}"` +
+          " where userID = " +
+          `"${userID}"`;
+        connection.query(sqlQuery, (error, result) => {
+          if (error) {
+            return res.status(400).json({ error: error });
+          } else {
+            return res.status(200).json({ message: "User updated" });
+          }
+        });
+      }
+    });
+  }
+);
 
 module.exports = router;
