@@ -9,15 +9,15 @@ dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
 
-// const connection = mysql.createConnection({
-//   host: process.env.HOST,
-//   port: process.env.PORTMYSQL,
-//   user: process.env.USER,
-//   password: process.env.PASSWORD,
-//   database: process.env.DATABASE,
-// });
+const connection = mysql.createConnection({
+  host: process.env.HOST,
+  port: process.env.PORTMYSQL,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
+});
 
-const connection = mysql.createConnection(process.env.JAWSDB_URL);
+//const connection = mysql.createConnection(process.env.JAWSDB_URL);
 
 connection.connect((error) => {
   error ? console.log(error) : console.log("connected");
@@ -51,8 +51,10 @@ app.use("/api/users/delete/:id", userRoutes);
 app.use("/api/users/update/common/:id", userRoutes);
 app.use("/api/users/update/info/:id", userRoutes);
 app.use("/api/expenses/:id", expenseRoutes);
+app.use("/api/expenses/:id/user/:userid", expenseRoutes);
 app.use("/api/expenses/add", expenseRoutes);
 app.use("/api/expenses/update/:id", expenseRoutes);
+app.use("/api/expenses/delete/:id", expenseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.listen(process.env.PORT || 4000);

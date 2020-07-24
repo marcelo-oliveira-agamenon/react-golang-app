@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const verifyToken = require("../utility/verifyToken");
 const multer = require("multer");
 const multerConfig = require("../config/index");
+const moment = require("moment");
 
 //Get list of users
 router.get("/api/users", verifyToken, (req, res) => {
@@ -63,7 +64,7 @@ router.post(
       objInfo.originalName = originalname;
       const info = JSON.stringify(objInfo);
       const userID = uuidv4();
-      const createdAt = new Date().toLocaleString();
+      const createdAt = moment().format("YYYY-MM-DD");
       const modifiedAt = null;
 
       //Hash password
@@ -111,7 +112,7 @@ router.delete("/api/users/delete/:id", verifyToken, (req, res) => {
   }
 });
 
-//Update fields of a User
+//Update username, password and roles of a User
 router.put("/api/users/update/common/:id", verifyToken, (req, res) => {
   const userID = req.params.id;
   const { username, password, roles } = req.body;
@@ -133,6 +134,7 @@ router.put("/api/users/update/common/:id", verifyToken, (req, res) => {
     } else {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
+      const modifiedAt = moment().format("YYYY-MM-DD");
       const sqlQuery =
         "Update user set username = " +
         `"${username}"` +
@@ -140,6 +142,8 @@ router.put("/api/users/update/common/:id", verifyToken, (req, res) => {
         `"${hashedPassword}"` +
         ", roles = " +
         `"${roles}"` +
+        ", modifiedAt = " +
+        `"${modifiedAt}"` +
         " where userID = " +
         `"${userID}"`;
       connection.query(sqlQuery, (error, result) => {
@@ -153,6 +157,7 @@ router.put("/api/users/update/common/:id", verifyToken, (req, res) => {
   });
 });
 
+//Update info json of a User
 router.put(
   "/api/users/update/info/:id",
   [verifyToken, multer(multerConfig).single("avatarFile")],
@@ -169,7 +174,7 @@ router.put(
     objInfo.imageName = imageName;
     objInfo.originalName = originalname;
     const infoModified = JSON.stringify(objInfo);
-    const modifiedAt = new Date().toLocaleString();
+    const modifiedAt = moment().format("YYYY-MM-DD");
 
     const verifyUserExist =
       "Select * from user where userID = " + `"${userID}"`;
